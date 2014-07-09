@@ -17,10 +17,9 @@ Or install it yourself as:
     <source>
       type snmptrap
       port 162
-      type snmptrap
       tag alert.snmptrap
     </source>
     
-    <match alert.snmp*>
+    <match alert.snmptrap*>
       type stdout
     </match>
