@@ -1,0 +1,9 @@
+<source>
+  type snmptrap
+  port 162
+  tag alert.snmptrap
+</source>
+
+<match alert.snmptrap*>
+  type stdout
+</match>
