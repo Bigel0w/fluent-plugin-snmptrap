@@ -41,7 +41,7 @@ Send a test trap using net-snmp tools
   
 ## To Do
 Things left to do, not in any particular order.
-wrap snmp-trap listener and have it restart on failure.
-add support for loading MIBs
-explode the var binds
-snmp-trap output plugin that exposes common fields and lets them be overwritten befor forwarding.                
+* wrap snmp-trap listener and have it restart on failure.
+* add support for loading MIBs
+* explode the var binds
+* snmp-trap output plugin that exposes common fields and lets them be overwritten befor forwarding.                
