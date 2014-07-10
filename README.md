@@ -1,6 +1,6 @@
 # Fluent::Plugin::SnmpTrap
 
-fluentd-plugin-snmptrap is an input plugin for [Fluentd](http://fluentd.org)
+fluent-plugin-snmptrap is an input plug-in for [Fluentd](http://fluentd.org)
 
 ## Installation
 
@@ -24,6 +24,7 @@ Add the following into your fluentd config.
       type snmptrap       # required, chossing the input plugin.
       host 127.0.0.1      # optional, interface to listen on, default 0 for all.
       port 162            # optional, port to listen for traps, default is 1062
+                          # ports under 1024 range will require sudo to start fluentd
       tag alert.snmptrap  # optional, tag to assign to events, default is alert.snmptrap 
     </source>
     
@@ -33,7 +34,7 @@ Add the following into your fluentd config.
     
 Now startup fluentd
 
-    $ fluentd -c fluent.conf &
+    $ sudo fluentd -c fluent.conf &
     
 Send a test trap using net-snmp tools
     
@@ -44,4 +45,4 @@ Things left to do, not in any particular order.
 * wrap snmp-trap listener and have it restart on failure.
 * add support for loading MIBs
 * explode the var binds
-* snmp-trap output plugin that exposes common fields and lets them be overwritten befor forwarding.                
+* snmp-trap output plug-in that exposes common fields and lets them be overwritten before forwarding.                
