@@ -2,7 +2,10 @@
 
 fluentd-plugin-snmptrap is an input plugin for [Fluentd](http://fluentd.org)
 
-## Installation (assuming you have fluentd already installed)
+## Installation
+
+These instructions assume you already have fluentd installed. 
+If you don't, please run through [quick start for fluentd] (https://github.com/fluent/fluentd#quick-start)
 
 Add this line to your application's Gemfile:
 
