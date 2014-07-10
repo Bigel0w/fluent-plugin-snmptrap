@@ -1,8 +1,8 @@
-# Fluent::Plugin::SnmpTrap, a plugin for [Fluentd](http://fluentd.org)
+# Fluent::Plugin::SnmpTrap
 
-Fluentd snmp trap input plugin
+fluentd-plugin-snmptrap is an input plugin for [Fluentd](http://fluentd.org)
 
-## Installation
+## Installation (assuming you have fluentd already installed)
 
 Add this line to your application's Gemfile:
 
@@ -13,13 +13,14 @@ Or install it yourself as:
     $ gem install fluent-plugin-snmptrap
 
 ## Usage
-
+Add the following into your fluentd config.
     <source>
-      type snmptrap
-      port 162
-      tag alert.snmptrap
+      type snmptrap       # required, chossing the input plugin.
+      host 127.0.0.1      # optional, interface to listen on, default 0 for all.
+      port 162            # optional, port to listen for traps, default is 1062
+      tag alert.snmptrap  # optional, tag to assign to events, default is alert.snmptrap 
     </source>
     
-    <match alert.snmptrap*>
+    <match alert.snmptrap>
       type stdout
-    </match>
+    </match>    
