@@ -7,6 +7,8 @@ fluentd-plugin-snmptrap is an input plugin for [Fluentd](http://fluentd.org)
 These instructions assume you already have fluentd installed. 
 If you don't, please run through [quick start for fluentd] (https://github.com/fluent/fluentd#quick-start)
 
+Now after you have fluentd installed you can follow either of the steps below:
+
 Add this line to your application's Gemfile:
 
     gem 'fluent-plugin-snmptrap'
@@ -27,4 +29,19 @@ Add the following into your fluentd config.
     
     <match alert.snmptrap>
       type stdout
-    </match>    
+    </match>
+    
+Now startup fluentd
+
+    $ fluentd -c fluent.conf &
+    
+Send a test trap using net-snmp tools
+    
+    & sudo snmptrap -v 1 -c public localhost:1062 1.3.6.1.4.1.10300.1.1.1.12 localhost 3 0 ''  
+  
+## To Do
+Things left to do, not in any particular order.
+wrap snmp-trap listener and have it restart on failure.
+add support for loading MIBs
+explode the var binds
+snmp-trap output plugin that exposes common fields and lets them be overwritten befor forwarding.                
