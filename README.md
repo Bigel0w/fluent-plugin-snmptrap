@@ -14,6 +14,7 @@ Or install it yourself as:
 
 ## Usage
 Add the following into your fluentd config.
+
     <source>
       type snmptrap       # required, chossing the input plugin.
       host 127.0.0.1      # optional, interface to listen on, default 0 for all.
