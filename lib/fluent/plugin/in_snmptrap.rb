@@ -1,7 +1,7 @@
 module Fluent
 # Read snmp trap messages as events in to fluentd
   class SnmpTrapInput < Input
-    Plugin.register_input('snmptrap', self)
+    Fluent::Plugin.register_input('snmptrap', self)
 
     # Define default configurations
     config_param :tag, :string, :default => "alert.snmptrap"
@@ -18,6 +18,7 @@ module Fluent
     # Load internal and external configs
     def configure(conf)
       super
+      @conf = conf
     end # def configure
 
     # Start SNMP Trap listener
