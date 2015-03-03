@@ -2,6 +2,11 @@
 
 fluent-plugin-snmptrap is an input plug-in for [Fluentd](http://fluentd.org)
 
+## Status
+[![Gem Version](https://badge.fury.io/rb/fluent-plugin-snmptrap.png)](http://badge.fury.io/rb/fluent-plugin-snmptrap)
+[![Build Status](https://travis-ci.org/Bigel0w/fluent-plugin-snmptrap.png?branch=master)](https://travis-ci.org/Bigel0w/fluent-plugin-snmptrap)
+[![Coverage Status](https://coveralls.io/repos/Bigel0w/fluent-plugin-snmptrap/badge.png?branch=master)](https://coveralls.io/r/Bigel0w/fluent-plugin-snmptrap?branch=master)
+
 ## Installation
 
 These instructions assume you already have fluentd installed. 
