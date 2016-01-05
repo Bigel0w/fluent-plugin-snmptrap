@@ -9,6 +9,10 @@ module Fluent
     config_param :port, :integer, :default => 1062
     config_param :community, :string, :default => "public"
 
+    unless method_defined?(:router)
+      define_method(:router) { Engine }
+    end
+
     # Initialize and bring in dependencies
     def initialize
       super
@@ -29,7 +33,7 @@ module Fluent
           tag = @tag 
           timestamp = Engine.now
           record = {"value"=> trap.inspect.to_json,"tags"=>{"type"=>"alert","host"=>trap.source_ip}}
-          Engine.emit(tag, timestamp, record)
+          router.emit(tag, timestamp, record)
         end
       end
     end # def start
