@@ -24,7 +24,7 @@ module Fluent
     # Start SNMP Trap listener
     def start
       super
-      m = SNMP::TrapListener.new(:Host => @host,:Port => @port) do |manager|
+      @m = SNMP::TrapListener.new(:Host => @host,:Port => @port) do |manager|
         manager.on_trap_default do |trap|
           tag = @tag 
           timestamp = Engine.now
@@ -32,13 +32,11 @@ module Fluent
           Engine.emit(tag, timestamp, record)
         end
       end
-      trap("INT") { m.exit }
-      m.join
     end # def start
 
     # Stop Listener and cleanup any open connections.
     def shutdown
-      m.exit
+      @m.exit
     end # def shutdown
   end # class SnmpTrapInput
 end # module Fluent
