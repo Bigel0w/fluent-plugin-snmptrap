@@ -5,7 +5,7 @@ module Fluent
 
     # Define default configurations
     config_param :tag, :string, :default => "alert.snmptrap"
-    config_param :host, :integer, :default => 0
+    config_param :host, :string, :default => '0'
     config_param :port, :integer, :default => 1062
     config_param :community, :string, :default => "public"
 
