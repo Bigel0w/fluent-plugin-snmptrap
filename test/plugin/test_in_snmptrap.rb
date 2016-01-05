@@ -17,8 +17,8 @@ class SnmpTrapInputTest < Test::Unit::TestCase
 
   def test_configure
     d = create_driver('')
-    assert_equal "0".to_i, d.instance.host
-    assert_equal "1062".to_i, d.instance.port
+    assert_equal "0", d.instance.host
+    assert_equal 1062, d.instance.port
     assert_equal 'alert.snmptrap', d.instance.tag
   end
 end
