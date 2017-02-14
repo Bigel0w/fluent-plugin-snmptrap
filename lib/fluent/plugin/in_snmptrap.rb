@@ -1,3 +1,5 @@
+require 'fluent/input'
+
 module Fluent
 # Read snmp trap messages as events in to fluentd
   class SnmpTrapInput < Input
@@ -62,6 +64,7 @@ module Fluent
 
     # Stop Listener and cleanup any open connections.
     def shutdown
+      super
       @m.exit
     end # def shutdown
   end # class SnmpTrapInput
