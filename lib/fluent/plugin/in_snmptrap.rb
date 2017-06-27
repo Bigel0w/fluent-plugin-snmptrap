@@ -50,7 +50,13 @@ module Fluent
                                 'agent_addr' => trap.agent_addr.to_s,
                                 'specific_trap' => trap.specific_trap,
                                 'generic_trap' => trap.generic_trap.to_s,
-                                'varbind_list' => trap.varbind_list,
+                                'varbind' => Hash[*trap.varbind_list.map { |vb|
+                                  if SNMP::Integer === vb.value
+                                    [vb.name.to_s, { 'value' => vb.value.to_i, 'asn1_type' => vb.value.asn1_type}]
+                                  else
+                                    [vb.name.to_s, { 'value' => vb.value.to_s, 'asn1_type' => vb.value.asn1_type}]
+                                  end
+                                }.flatten],
                                 'timestamp' => trap.timestamp.to_s
                               }
                             }
