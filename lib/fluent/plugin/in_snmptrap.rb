@@ -94,7 +94,7 @@ module Fluent
           tag = @tag
           timestamp = Engine.now
           # trap.enterprise doesn't have MIB information
-          if trap === SNMP::SNMPv1_Trap
+          if SNMP::SNMPv1_Trap === trap
             trap.enterprise.with_mib(manager.instance_variable_get(:@mib))
           end
           record = @record_generator.call(trap)
