@@ -18,6 +18,7 @@ Gem::Specification.new do |gem|
   gem.require_paths = ["lib"]
 
   gem.add_development_dependency "rake", '~> 0.9', '>= 0.9.6'
+  gem.add_development_dependency "test-unit"
 
   gem.add_runtime_dependency "fluentd", '~> 0.10', '>= 0.10.51'
   gem.add_runtime_dependency "snmp", '~> 1.1', '>= 1.1.1'
