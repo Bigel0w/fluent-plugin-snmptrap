@@ -1,6 +1,6 @@
-require 'fluent/input'
+require 'fluent/plugin/input'
 
-module Fluent
+module Fluent::Plugin
 # Read snmp trap messages as events in to fluentd
   class SnmpTrapInput < Input
     Fluent::Plugin.register_input('snmptrap', self)
@@ -54,7 +54,7 @@ module Fluent
       @m = SNMP::TrapListener.new(:Host => @host,:Port => @port) do |manager|
         manager.on_trap_default do |trap|
           tag = @tag
-          timestamp = Engine.now
+          timestamp = Fluent::Engine.now
           record = @record_generator.call(trap)
           record['tags'] = {'type' => 'alert' , 'host' => trap.source_ip}
           router.emit(tag, timestamp, record)

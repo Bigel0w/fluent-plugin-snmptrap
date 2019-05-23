@@ -12,7 +12,7 @@ class SnmpTrapInputTest < Test::Unit::TestCase
   ]
 
   def create_driver(conf=CONFIG)
-    Fluent::Test::InputTestDriver.new(Fluent::SnmpTrapInput).configure(conf)
+    Fluent::Test::InputTestDriver.new(Fluent::Plugin::SnmpTrapInput).configure(conf)
   end
 
   def test_configure
