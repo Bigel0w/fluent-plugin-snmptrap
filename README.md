@@ -51,5 +51,4 @@ Send a test trap using net-snmp tools
   
 ## To Do
 Things left to do, not in any particular order.
-* wrap snmp-trap listener and have it restart on failure.
 * snmp-trap output plug-in that exposes common fields and lets them be overwritten before forwarding.

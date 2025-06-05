@@ -53,6 +53,8 @@ class SnmpTrapInputTest < Test::Unit::TestCase
 
       def on_trap_default(&block); end
 
+      def join; end
+
       def exit; end
     end
 
@@ -61,9 +63,54 @@ class SnmpTrapInputTest < Test::Unit::TestCase
 
     d = create_driver(CONFIG_PORTS)
     d.instance.start
+    10.times do
+      break if dummy.instances.size >= 2
+      sleep 0.1
+    end
     assert_equal 2, dummy.instances.size
     ports = dummy.instances.map { |i| i.params[:port] }.sort
     assert_equal [1062, 1063], ports
+    d.instance.shutdown
+  ensure
+    SNMP.send(:remove_const, :TrapListener)
+    SNMP.const_set(:TrapListener, trap_listener_backup)
+  end
+
+  def test_listener_restart_on_failure
+    trap_listener_backup = SNMP::TrapListener
+    dummy = Class.new do
+      @@instances = []
+      attr_reader :params
+
+      def initialize(params)
+        @params = params
+        @@instances << self
+        yield self if block_given?
+      end
+
+      def self.instances
+        @@instances
+      end
+
+      def on_trap_default(&block); end
+
+      def join
+        raise 'boom'
+      end
+
+      def exit; end
+    end
+
+    SNMP.send(:remove_const, :TrapListener)
+    SNMP.const_set(:TrapListener, dummy)
+
+    d = create_driver(CONFIG + "\nrestart_wait 0.1")
+    d.instance.start
+    20.times do
+      break if dummy.instances.size >= 2
+      sleep 0.1
+    end
+    assert_operator dummy.instances.size, :>=, 2
     d.instance.shutdown
   ensure
     SNMP.send(:remove_const, :TrapListener)
