@@ -30,7 +30,9 @@ Add the following into your fluentd config.
       host 127.0.0.1      # optional, interface to listen on, default 0 for all.
       port 162            # optional, port to listen for traps, default is 1062
                           # ports under 1024 range will require sudo to start fluentd
-      tag alert.snmptrap  # optional, tag to assign to events, default is alert.snmptrap 
+      tag alert.snmptrap  # optional, tag to assign to events, default is alert.snmptrap
+      mib_dir /path/to/mibs          # optional, directory containing MIB files
+      mib_modules SNMPv2-SMI,SNMPv2-MIB # optional, comma separated modules to load
     </source>
     
     <match alert.snmptrap>
@@ -48,6 +50,4 @@ Send a test trap using net-snmp tools
 ## To Do
 Things left to do, not in any particular order.
 * wrap snmp-trap listener and have it restart on failure.
-* add support for loading MIBs
-* explode the var binds
-* snmp-trap output plug-in that exposes common fields and lets them be overwritten before forwarding.                
+* snmp-trap output plug-in that exposes common fields and lets them be overwritten before forwarding.
