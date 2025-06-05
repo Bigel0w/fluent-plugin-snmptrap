@@ -16,6 +16,7 @@ module Fluent
       config_param :emit_event_format, :string, default: 'jsonized'
       config_param :mib_dir, :string, default: nil
       config_param :mib_modules, :string, default: nil
+      config_param :restart_wait, :float, default: 1.0
 
       def initialize
         super
@@ -83,27 +84,51 @@ module Fluent
 
       def start
         super
-        @listeners = @ports.map do |p|
-          params = @snmp_init_params.merge(port: p)
-          SNMP::TrapListener.new(params) do |manager|
-            manager.on_trap_default do |trap|
-              tag = @tag
-              timestamp = Engine.now
-              if SNMP::SNMPv1_Trap === trap
-                trap.enterprise.with_mib(manager.instance_variable_get(:@mib))
-              end
-              record = @record_generator.call(trap)
-              record['tags'] = { 'type' => 'alert', 'host' => trap.source_ip }
-              router.emit(tag, timestamp, record)
-            end
-          end
-        end
+        @stopped = false
+        @listener_threads = @ports.map { |p| run_listener_thread(p) }
       end
 
       def shutdown
         super
-        if @listeners
-          @listeners.each { |l| l.exit }
+        @stopped = true
+        if @listener_threads
+          @listener_threads.each(&:kill)
+          @listener_threads.each(&:join)
+        end
+      end
+
+      private
+
+      def create_snmp_listener(port)
+        params = @snmp_init_params.merge(port: port)
+        SNMP::TrapListener.new(params) do |manager|
+          manager.on_trap_default do |trap|
+            tag = @tag
+            timestamp = Engine.now
+            if SNMP::SNMPv1_Trap === trap
+              trap.enterprise.with_mib(manager.instance_variable_get(:@mib))
+            end
+            record = @record_generator.call(trap)
+            record['tags'] = { 'type' => 'alert', 'host' => trap.source_ip }
+            router.emit(tag, timestamp, record)
+          end
+        end
+      end
+
+      def run_listener_thread(port)
+        Thread.new do
+          until @stopped
+            listener = nil
+            begin
+              listener = create_snmp_listener(port)
+              listener.join
+            rescue => e
+              log.error "SNMP trap listener on port #{port} failed: #{e}"
+            ensure
+              listener&.exit
+            end
+            sleep @restart_wait unless @stopped
+          end
         end
       end
     end
