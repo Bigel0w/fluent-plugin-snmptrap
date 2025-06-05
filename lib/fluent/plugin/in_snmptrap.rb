@@ -11,6 +11,7 @@ module Fluent
       config_param :tag, :string, default: 'alert.snmptrap'
       config_param :host, :string, default: '0'
       config_param :port, :integer, default: 1062
+      config_param :ports, :array, default: [], value_type: :integer
       config_param :community, :string, default: 'public'
       config_param :emit_event_format, :string, default: 'jsonized'
       config_param :mib_dir, :string, default: nil
@@ -24,10 +25,10 @@ module Fluent
       def configure(conf)
         super
         @conf = conf
+        @ports = [@port] if @ports.empty?
         @mib_modules = @mib_modules.split(',').map { |str| str.strip } unless @mib_modules.nil?
         @snmp_init_params = {
           host: @host,
-          port: @port,
           mib_dir: @mib_dir,
           mib_modules: @mib_modules,
         }
@@ -82,23 +83,28 @@ module Fluent
 
       def start
         super
-        @listener = SNMP::TrapListener.new(@snmp_init_params) do |manager|
-          manager.on_trap_default do |trap|
-            tag = @tag
-            timestamp = Engine.now
-            if SNMP::SNMPv1_Trap === trap
-              trap.enterprise.with_mib(manager.instance_variable_get(:@mib))
+        @listeners = @ports.map do |p|
+          params = @snmp_init_params.merge(port: p)
+          SNMP::TrapListener.new(params) do |manager|
+            manager.on_trap_default do |trap|
+              tag = @tag
+              timestamp = Engine.now
+              if SNMP::SNMPv1_Trap === trap
+                trap.enterprise.with_mib(manager.instance_variable_get(:@mib))
+              end
+              record = @record_generator.call(trap)
+              record['tags'] = { 'type' => 'alert', 'host' => trap.source_ip }
+              router.emit(tag, timestamp, record)
             end
-            record = @record_generator.call(trap)
-            record['tags'] = { 'type' => 'alert', 'host' => trap.source_ip }
-            router.emit(tag, timestamp, record)
           end
         end
       end
 
       def shutdown
         super
-        @listener.exit if @listener
+        if @listeners
+          @listeners.each { |l| l.exit }
+        end
       end
     end
   end

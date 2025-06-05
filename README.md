@@ -30,6 +30,8 @@ Add the following into your fluentd config.
       host 127.0.0.1      # optional, interface to listen on, default 0 for all.
       port 162            # optional, port to listen for traps, default is 1062
                           # ports under 1024 range will require sudo to start fluentd
+      # ports 1062,1063   # optional, alternative to "port" for listening on
+                          # multiple ports
       tag alert.snmptrap  # optional, tag to assign to events, default is alert.snmptrap
       mib_dir /path/to/mibs          # optional, directory containing MIB files
       mib_modules SNMPv2-SMI,SNMPv2-MIB # optional, comma separated modules to load
