@@ -1,6 +1,6 @@
 # Fluent::Plugin::SnmpTrap
 
-fluent-plugin-snmptrap is an input plug-in for [Fluentd](http://fluentd.org)
+fluent-plugin-snmptrap is an input plug-in for [Fluentd](http://fluentd.org). It works with Fluentd v1.0 and later.
 
 ## Status
 [![Gem Version](https://badge.fury.io/rb/fluent-plugin-snmptrap.png)](http://badge.fury.io/rb/fluent-plugin-snmptrap)
