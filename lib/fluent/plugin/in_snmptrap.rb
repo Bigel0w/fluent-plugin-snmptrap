@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'fluent/plugin/input'
 require 'json'
 
@@ -25,61 +27,14 @@ module Fluent
 
       def configure(conf)
         super
-        @conf = conf
         @ports = [@port] if @ports.empty?
-        @mib_modules = @mib_modules.split(',').map { |str| str.strip } unless @mib_modules.nil?
+        @mib_modules = parse_mib_modules(@mib_modules)
         @snmp_init_params = {
           host: @host,
           mib_dir: @mib_dir,
           mib_modules: @mib_modules,
         }
-        @record_generator = case @emit_event_format
-                            when 'jsonized'
-                              ->(trap) { { 'value' => trap.inspect.to_json } }
-                            when 'record'
-                              lambda do |trap|
-                                case trap
-                                when SNMP::SNMPv1_Trap
-                                  {
-                                    'source_ip' => trap.source_ip,
-                                    'enterprise' => trap.enterprise,
-                                    'oid' => trap.enterprise.to_str,
-                                    'name' => trap.enterprise.to_s,
-                                    'agent_addr' => trap.agent_addr.to_s,
-                                    'specific_trap' => trap.specific_trap,
-                                    'generic_trap' => trap.generic_trap.to_s,
-                                    'varbind' => Hash[*trap.varbind_list.map do |vb|
-                                      if SNMP::Integer === vb.value
-                                        [vb.name.to_s, { 'value' => vb.value.to_i, 'asn1_type' => vb.value.asn1_type }]
-                                      else
-                                        [vb.name.to_s, { 'value' => vb.value.to_s, 'asn1_type' => vb.value.asn1_type }]
-                                      end
-                                    end.flatten],
-                                    'timestamp' => trap.timestamp.to_s
-                                  }
-                                when SNMP::SNMPv2_Trap
-                                  {
-                                    'source_ip' => trap.source_ip,
-                                    'sys_up_time' => trap.sys_up_time.to_s,
-                                    'trap_oid' => trap.trap_oid,
-                                    'oid' => trap.trap_oid.to_str,
-                                    'name' => trap.trap_oid.to_s,
-                                    'request_id' => trap.request_id,
-                                    'error_status' => trap.error_status.to_s,
-                                    'error_index' => trap.error_index,
-                                    'varbind' => Hash[*trap.varbind_list.map do |vb|
-                                      if SNMP::Integer === vb.value
-                                        [vb.name.to_s, { 'value' => vb.value.to_i, 'asn1_type' => vb.value.asn1_type }]
-                                      else
-                                        [vb.name.to_s, { 'value' => vb.value.to_s, 'asn1_type' => vb.value.asn1_type }]
-                                      end
-                                    end.flatten]
-                                  }
-                                end
-                              end
-                            else
-                              raise Fluent::ConfigError, "Unknown emit_event_format: '#{@emit_event_format}'"
-                            end
+        @record_generator = build_record_generator(@emit_event_format)
       end
 
       def start
@@ -122,13 +77,68 @@ module Fluent
             begin
               listener = create_snmp_listener(port)
               listener.join
-            rescue => e
+            rescue StandardError => e
               log.error "SNMP trap listener on port #{port} failed: #{e}"
             ensure
               listener&.exit
             end
             sleep @restart_wait unless @stopped
           end
+        end
+      end
+
+      def parse_mib_modules(value)
+        return nil if value.nil?
+        value.split(',').map { |str| str.strip }
+      end
+
+      def build_record_generator(format)
+        case format
+        when 'jsonized'
+          ->(trap) { { 'value' => trap.inspect.to_json } }
+        when 'record'
+          lambda do |trap|
+            case trap
+            when SNMP::SNMPv1_Trap
+              {
+                'source_ip' => trap.source_ip,
+                'enterprise' => trap.enterprise,
+                'oid' => trap.enterprise.to_str,
+                'name' => trap.enterprise.to_s,
+                'agent_addr' => trap.agent_addr.to_s,
+                'specific_trap' => trap.specific_trap,
+                'generic_trap' => trap.generic_trap.to_s,
+                'varbind' => Hash[*trap.varbind_list.map do |vb|
+                  if SNMP::Integer === vb.value
+                    [vb.name.to_s, { 'value' => vb.value.to_i, 'asn1_type' => vb.value.asn1_type }]
+                  else
+                    [vb.name.to_s, { 'value' => vb.value.to_s, 'asn1_type' => vb.value.asn1_type }]
+                  end
+                end.flatten],
+                'timestamp' => trap.timestamp.to_s
+              }
+            when SNMP::SNMPv2_Trap
+              {
+                'source_ip' => trap.source_ip,
+                'sys_up_time' => trap.sys_up_time.to_s,
+                'trap_oid' => trap.trap_oid,
+                'oid' => trap.trap_oid.to_str,
+                'name' => trap.trap_oid.to_s,
+                'request_id' => trap.request_id,
+                'error_status' => trap.error_status.to_s,
+                'error_index' => trap.error_index,
+                'varbind' => Hash[*trap.varbind_list.map do |vb|
+                  if SNMP::Integer === vb.value
+                    [vb.name.to_s, { 'value' => vb.value.to_i, 'asn1_type' => vb.value.asn1_type }]
+                  else
+                    [vb.name.to_s, { 'value' => vb.value.to_s, 'asn1_type' => vb.value.asn1_type }]
+                  end
+                end.flatten]
+              }
+            end
+          end
+        else
+          raise Fluent::ConfigError, "Unknown emit_event_format: '#{format}'"
         end
       end
     end

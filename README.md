@@ -4,8 +4,7 @@ fluent-plugin-snmptrap is an input plug-in for [Fluentd](http://fluentd.org). It
 
 ## Status
 [![Gem Version](https://badge.fury.io/rb/fluent-plugin-snmptrap.png)](http://badge.fury.io/rb/fluent-plugin-snmptrap)
-[![Build Status](https://travis-ci.org/Bigel0w/fluent-plugin-snmptrap.png?branch=master)](https://travis-ci.org/Bigel0w/fluent-plugin-snmptrap)
-[![Coverage Status](https://coveralls.io/repos/Bigel0w/fluent-plugin-snmptrap/badge.png?branch=master)](https://coveralls.io/r/Bigel0w/fluent-plugin-snmptrap?branch=master)
+[![Build Status](https://github.com/Bigel0w/fluent-plugin-snmptrap/actions/workflows/ruby.yml/badge.svg)](https://github.com/Bigel0w/fluent-plugin-snmptrap/actions)
 
 ## Installation
 
@@ -46,9 +45,30 @@ Now startup fluentd
     $ sudo fluentd -c fluent.conf &
     
 Send a test trap using net-snmp tools
-    
-    & sudo snmptrap -v 1 -c public localhost:1062 1.3.6.1.4.1.10300.1.1.1.12 localhost 3 0 ''  
+
+    & sudo snmptrap -v 1 -c public localhost:1062 1.3.6.1.4.1.10300.1.1.1.12 localhost 3 0 ''
+
+### Example Output
+
+When `emit_event_format` is set to `record`, a trap like the one above will be
+emitted as a structured record:
+
+```json
+{
+  "source_ip": "127.0.0.1",
+  "enterprise": "1.3.6.1.4.1.10300.1.1.1.12",
+  "oid": "1.3.6.1.4.1.10300.1.1.1.12",
+  "name": "SNMPv2-SMI::enterprises.10300.1.1.1.12",
+  "specific_trap": 0,
+  "generic_trap": "enterpriseSpecific",
+  "varbind": {}
+}
+```
   
 ## To Do
 Things left to do, not in any particular order.
 * snmp-trap output plug-in that exposes common fields and lets them be overwritten before forwarding.
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
